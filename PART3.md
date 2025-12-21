@@ -1,5 +1,3 @@
-# PART 3
-
 ## 1. Environment setup
 
 Install al requires package via `pip install -r requirements.txt`
