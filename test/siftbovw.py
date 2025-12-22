@@ -4,7 +4,7 @@ from sklearn.cluster import MiniBatchKMeans
 from sklearn.preprocessing import normalize
 
 class SiftBoVW:
-    def __init__(self, n_words=500, max_sample = 200000, batch_size = 100, random_state=0):
+    def __init__(self, n_words=100, max_sample = 100000, batch_size = 1000, random_state=0):
         """
         Initialize the SIFTBoVW class.
 
