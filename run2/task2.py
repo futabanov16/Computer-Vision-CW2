@@ -5,6 +5,8 @@ from sklearn.cluster import KMeans
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import glob
+from sklearn.model_selection import train_test_split
+
 
 def extract_patches(image):
     # Extracting pixel blocks through dense sampling from images
@@ -67,7 +69,7 @@ def predict_image(image, classifiers, scaler, kmeans):
     # Compute scores from all one-vs-all classifiers
     scores = []
     for clf in classifiers:
-        score = clf.predict_proba(features_scaled)[0][1]  # 正类概率
+        score = clf.predict_proba(features_scaled)[0][1]
         scores.append(score)
     
     predicted_class_idx = np.argmax(scores)
@@ -160,11 +162,51 @@ if __name__ == '__main__':
     output_file = os.path.join(script_dir, 'run2.txt')
 
     # training
+    #images, labels, class_names = load_training_images(training_dir)
+    #kmeans = build_vocabulary(images)
+    #classifiers, scaler = train_classifiers(images, labels, kmeans, class_names)
+    # load full training data
+
     images, labels, class_names = load_training_images(training_dir)
-    kmeans = build_vocabulary(images)
-    classifiers, scaler = train_classifiers(images, labels, kmeans, class_names)
+
+    # split training data into train / validation
+    train_images, val_images, train_labels, val_labels = train_test_split(
+        images,
+        labels,
+        test_size=0.2,
+        random_state=42,
+        stratify=labels
+    )
+
+    print(f"Training images: {len(train_images)}")
+    print(f"Validation images: {len(val_images)}")
+
+    # build vocabulary using TRAINING images only
+    kmeans = build_vocabulary(train_images)
+
+    # train classifiers using TRAINING images only
+    classifiers, scaler = train_classifiers(
+        train_images,
+        train_labels,
+        kmeans,
+        class_names
+    )
+
     test_images = sorted(glob.glob(os.path.join(testing_dir, '*.jpg')))
-    
+
+    # validation accuracy evaluation
+    correct = 0
+    total = len(val_images)
+
+    for img, true_label in zip(val_images, val_labels):
+        pred_label = predict_image(img, classifiers, scaler, kmeans)
+        if pred_label == true_label:
+            correct += 1
+
+    val_accuracy = correct / total
+    print(f"Validation accuracy: {val_accuracy:.4f}")
+
+    # prediction
     predictions = []
     for img_path in test_images:
         img = Image.open(img_path).convert('L')
