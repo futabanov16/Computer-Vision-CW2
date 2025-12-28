@@ -103,6 +103,9 @@ class SiftBoVW:
         return hist.squeeze(0) # (K,)
     
     def fit(self, imgs):
+        # Fix random seed
+        rng = np.random.default_rng(self._random_state)
+
         # 1) extract SIFT descriptors for all images
         desc_list = self._extract_sift(imgs)
 
@@ -111,16 +114,17 @@ class SiftBoVW:
         print(f"[SIFTBoVW] Total descriptors before sampling: {all_desc.shape[0]}")
         
         # 3) optional sampling
-        if all_desc.shape[0] > self._max_sample:
-            sample_indices = np.random.choice(all_desc.shape[0], size=self._max_sample, replace=False)
-            sample_desc = all_desc[sample_indices]
-            print(f"[SIFTBoVW] Subsampled to {sample_desc.shape[0]} descriptors")
+        if self._max_sample is not None and self._max_sample > 0:
+            if all_desc.shape[0] > self._max_sample:
+                sample_indices =    rng.choice(all_desc.shape[0], size=self._max_sample, replace=False)
+                sample_desc = all_desc[sample_indices]
+                print(f"[SIFTBoVW] Subsampled to {sample_desc.shape[0]} descriptors")
 
         else:
             sample_desc = all_desc
 
         # 4) k-means clustering
-        self.kmeans = MiniBatchKMeans(n_clusters=self._n_words, batch_size=self._batch_size, random_state=self._random_state, verbose=1)
+        self.kmeans = MiniBatchKMeans(n_clusters=self._n_words, batch_size=self._batch_size, random_state=self._random_state, verbose=0)
         self.kmeans.fit(sample_desc)
 
         center = self.kmeans.cluster_centers_

@@ -89,6 +89,7 @@ class PHOW:
         all_histograms = []
         
         for level in self._pyramid_levels:
+            # Number of grid cells in this level
             n_cells = 2 ** level  # level 0: 1, level 1: 2, level 2: 4
             cell_h = h // n_cells
             cell_w = w // n_cells
@@ -160,9 +161,12 @@ class PHOW:
         all_desc = self._extract_all_descriptors(imgs)
         print(f"[PHOW] Total descriptors: {all_desc.shape[0]}")
         
+
+        # Fix the random seed
+        rng = np.random.default_rng(self._random_state)
         # Sampling
         if all_desc.shape[0] > self._max_sample:
-            sample_indices = np.random.choice(all_desc.shape[0], 
+            sample_indices = rng.choice(all_desc.shape[0], 
                                             size=self._max_sample, 
                                             replace=False)
             sample_desc = all_desc[sample_indices]
@@ -176,7 +180,7 @@ class PHOW:
             n_clusters=self._n_words,
             batch_size=self._batch_size,
             random_state=self._random_state,
-            verbose=1
+            verbose=0
         )
         self.kmeans.fit(sample_desc)
         
