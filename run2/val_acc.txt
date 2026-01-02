@@ -1,0 +1,10 @@
+Fold 1 accuracy: 0.6700
+Fold 2 accuracy: 0.6233
+Fold 3 accuracy: 0.6900
+Fold 4 accuracy: 0.6700
+Fold 5 accuracy: 0.6733
+
+===============================
+Mean CV accuracy: 0.6653
+Std  CV accuracy: 0.0223
+===============================
