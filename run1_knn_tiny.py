@@ -272,7 +272,7 @@ if __name__ == "__main__":
         out_path="run1.txt",
         size=16,
         k=1,              # fallback if tuning disabled
-        tune_k=false,       # set False if you want fixed k (for final test run)
+        tune_k=False,       # set False if you want fixed k (for final test run)
         val_per_class=20,  # 20 val images per class (so 80 train per class)
         seed=42,           # makes the split reproducible
     )
