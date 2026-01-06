@@ -76,9 +76,8 @@ def train_classifiers(images, labels, kmeans, class_names):
 
     return classifiers, scaler
 
-def build_vocabulary(images):
+def build_vocabulary(images, n_clusters):
     all_patches = []
-    n_clusters = 800
     max_patches_per_image = 100
 
     for img in images:
@@ -132,6 +131,7 @@ if __name__ == '__main__':
     # load training data
     images, labels, class_names = load_training_images(training_dir)
 
+
     # k-fold Cross Validation
     k = 5
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
@@ -147,7 +147,7 @@ if __name__ == '__main__':
         val_labels   = labels[val_idx]
 
         # build vocabulary & train classifiers on training fold
-        kmeans = build_vocabulary(train_images)
+        kmeans = build_vocabulary(train_images, 2000)
         classifiers, scaler = train_classifiers(
             train_images, train_labels, kmeans, class_names
         )
@@ -165,9 +165,11 @@ if __name__ == '__main__':
 
     print(f"Mean CV accuracy: {np.mean(fold_accuracies):.4f}")
     print(f"Std  CV accuracy: {np.std(fold_accuracies):.4f}")
+    
+    
 
     #print("\nTraining final model on full training set...")
-    kmeans = build_vocabulary(images)
+    kmeans = build_vocabulary(images, 2000)
     classifiers, scaler = train_classifiers(
         images, labels, kmeans, class_names
     )
@@ -196,3 +198,4 @@ if __name__ == '__main__':
     with open(output_file, 'w') as f:
         for img_name, pred_class in predictions:
             f.write(f"{img_name} {pred_class}\n")
+
